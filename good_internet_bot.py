@@ -21,7 +21,7 @@ try:
     guild_ids = list(map(int, c["guild_ids"]))
 except FileNotFoundError as e:
     logger.debug(e)
-    sys.exit()
+    guild_ids = []
 
 
 @bot.event
