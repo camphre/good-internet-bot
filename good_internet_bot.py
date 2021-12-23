@@ -46,6 +46,8 @@ async def get_status_of(ctx, username: Option(str, "username of VRChat")):
     logger.info(f"get_status_of {username}")
 
     r = vrc.get_user_by_username(username)
+    await ctx.defer()
+
     logger.info(r)
 
     if r["worldId"] == "offline":
@@ -68,18 +70,24 @@ async def get_todays_vrc_music_events(ctx):
     logger.info("get_todays_vrc_music_events")
 
     response = requests.get(config.calender_url)
+    await ctx.defer()
+
     data = json.loads(response.text)
     logger.info(data)
 
     event_title = "\n".join([event["title"] for event in data.values()])
     event_date = "\n".join([event["startTime"] for event in data.values()])
 
-    embed = discord.Embed(
-        title="Today's VRC Music Events",
-        description=f"今日({datetime.date.today()}), VRChatで開催される音楽イベント",
-    )
-    embed.add_field(name="イベント名", value=event_title)
-    embed.add_field(name="時間", value=event_date)
+    embed = discord.Embed(title="Today's VRC Music Events")
+
+    if data == {}:
+        embed.description = (
+            f"VRCクラブイベントカレンダー上で今日({datetime.date.today()})開催されるイベントはありません．"
+        )
+    else:
+        embed.description = (f"今日({datetime.date.today()}), VRChatで開催されるクラブイベント",)
+        embed.add_field(name="イベント名", value=event_title)
+        embed.add_field(name="時間", value=event_date)
 
     await ctx.respond(embed=embed)
 
