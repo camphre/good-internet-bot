@@ -2,6 +2,7 @@ import json
 from pprint import pprint
 
 import cloudscraper
+from logzero import logger
 
 import config
 from two_factor_auth import get_two_factor_auth_code
@@ -25,6 +26,7 @@ def get_apiKey():
 
 
 def login_and_get_current_user():
+    logger.info("Login and get current user")
     response = scraper.get(
         BASE_URL + "/auth/user", data=data, auth=(config.username, config.password)
     )
@@ -33,6 +35,7 @@ def login_and_get_current_user():
 
 
 def verify_2FA_code():
+    logger.info("Verify two factor authentication code")
     data["code"] = get_two_factor_auth_code(config.totp)
     response = scraper.post(
         f"{BASE_URL}/auth/twofactorauth/totp/verify",
@@ -44,6 +47,7 @@ def verify_2FA_code():
 
 
 def logout():
+    logger.info("Logout")
     reponse = scraper.put(f"{BASE_URL}/logout")
     reponse.raise_for_status()
     return reponse.json()
@@ -63,6 +67,7 @@ def auth(func):
 
 
 def get_user_by_username(username):
+    logger.info(f"Get user by username {username}")
     response = scraper.get(f"{BASE_URL}/users/{username}/name", data=data)
     response.raise_for_status()
     return response.json()

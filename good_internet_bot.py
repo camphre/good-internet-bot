@@ -19,9 +19,10 @@ try:
     with open("guild_ids.json") as f:
         c = json.load(f)
     guild_ids = list(map(int, c["guild_ids"]))
+    logger.info(f"guild_ids is {guild_ids}")
 except FileNotFoundError as e:
-    logger.debug(e)
-    guild_ids = []
+    guild_ids = None
+    logger.info("guild_ids is not specified. It takes about an hour to start the bot.")
 
 
 @bot.event
@@ -31,6 +32,8 @@ async def on_ready():
 
 @bot.slash_command(guild_ids=guild_ids)
 async def jumbo(ctx, name: str = None):
+    logger.info(f"jumbo {name}!")
+
     name = name or ctx.author.name
     await ctx.respond(f"Jumbo {name}!")
 
@@ -40,6 +43,8 @@ async def jumbo(ctx, name: str = None):
     description="入力されたusernameを持つユーザーがオンラインかどうかを返します．",
 )
 async def get_status_of(ctx, username: Option(str, "username of VRChat")):
+    logger.info(f"get_status_of {username}")
+
     r = vrc.get_user_by_username(username)
     logger.info(r)
 
@@ -60,13 +65,12 @@ async def get_status_of(ctx, username: Option(str, "username of VRChat")):
 
 @bot.slash_command(guild_ids=guild_ids, description="VRChatで今日開催される音楽イベントを通知します．")
 async def get_todays_vrc_music_events(ctx):
+    logger.info("get_todays_vrc_music_events")
+
     response = requests.get(config.calender_url)
     data = json.loads(response.text)
     logger.info(data)
 
-    content = "\n".join(
-        [f"{event['title']} {event['startTime']}" for event in data.values()]
-    )
     event_title = "\n".join([event["title"] for event in data.values()])
     event_date = "\n".join([event["startTime"] for event in data.values()])
 
